@@ -4,7 +4,12 @@
   overflow-x: hidden;
   gap: 30px;
   justify-content: center;
-  align-items: center;
+  /* align-items: center; */
+  /* text-align: center; */
+}
+
+.top {
+  text-align: center;
 }
 
 .checkBoxes {
