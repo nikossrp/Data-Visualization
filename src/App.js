@@ -1,43 +1,83 @@
 import { useEffect, useState } from 'react';
 import './App.css';
-import {Buttons, MyChartJS} from './components';
+import {Buttons, MyChartJS, TransferDataButton, UploadDataButton } from './components';
 import dir from './Data/test_data.xlsx';
 import * as XLSX from 'xlsx';
+import axios from 'axios';
 
 
 function App() {
   const [excelData, setExcelData] = useState([]);   //fill the array with the data from the excel file
   const [userOptions, setUserOptions] = useState([]);   // keep the options fro the checkboxes
   const [chartData, setChartData] = useState([]);  
-  
-  
+  // const [upload, setUpload] = useState(false);
+  const [data, setData] = useState([]);
+  const [status, setStatus] = useState("uncompleted_transference");
+
+
+  // for pooling the data from database
   useEffect(() => {
-    fetch(dir)
-    .then(response => response.arrayBuffer())
-    .then(buffer => {
-      let data = new Uint8Array(buffer);
-      const workbook = XLSX.read(data, { type: 'array' });
-      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) ;
-      setExcelData(jsonData);
-    })
-    .catch(error => {
-      console.log('Error reading Excel file:', error);
-    })  
-  }, [excelData]);    
+    const startpooling = () => {
+      const pollInterval = setInterval(fetchStatus, 10000); // Periodically fetch the data every 5 seconds until the transfer is completed
+      function fetchStatus() {
+        axios.get('http://localhost:8080/api/results')
+          .then(response => {
+            const status = response.data.status;
+            console.log(response.data.data.length, status);
+            setStatus(status)
+            if (status === 'completed_transference') {
+              // Perform actions when complete status is received
+              stopPolling(); // Stop the polling loop
+              
+              console.log(response.data.data.length);
+              console.log(response.data.data);
+              setStatus(status)
+              setExcelData(response.data.data);
+            }
+          })
+          .catch(error => {
+            console.log('Error fetching status:', error);
+          });
+      }
+      function stopPolling() {
+        clearInterval(pollInterval);
+      }
+    }
+
+    startpooling();
+
+  }, []);
+
+  
+
+  
+  // useEffect(() => {
+  //   fetch(dir)
+  //   .then(response => response.arrayBuffer())
+  //   .then(buffer => {
+  //     let data = new Uint8Array(buffer);
+  //     const workbook = XLSX.read(data, { type: 'array' });
+  //     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+  //     const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) ;
+  //     setExcelData(jsonData);
+  //   })
+  //   .catch(error => {
+  //     console.log('Error reading Excel file:', error);
+  //   })  
+  // }, [excelData]);    
 
 
   useEffect(() => {   
     processData(excelData);
-  }, [userOptions])   // we call the processData when the user changes the options
+  }, [userOptions])   // we call the processData when wereceive the data from backkend and user changes the options
 
 
   const handleOptions = (options) => {  // handle the checkboxes options
     setUserOptions(options);
   };
 
-
-  const processData = (jsonData) => {
+  // fill the chartData array using the data from excel compared with the user options
+  const processData = (jsonData, status) => {
     var record;
     var isMatchRegion = false;  // label for relating the record with the region
     var isMatchModel = false;
@@ -48,6 +88,10 @@ function App() {
     const selected_scenarios = userOptions['Scenarios'];
     const selected_variables = userOptions['Variables'];
 
+    if (status === 'uncompleted_transference' ) {
+      console.log("I have uncompleted status");
+      return;
+    }
 
     const temp_data = {};
     temp_data[0] = jsonData[0];
@@ -93,23 +137,27 @@ function App() {
   };
 
 
-
-
   return (
     <div className="App">
-      <div className="container">
-        <div className="formData">
-          <Buttons 
-            data={excelData} 
-            handleOptions={handleOptions} 
-          />
+        <div className='top'>
+          <p> Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+             Ullam veniam magni provident explicabo nulla impedit nihil 
+             quae sit sapiente. Laborum! </p>
+          <div><UploadDataButton/></div>
+          <div><TransferDataButton/></div>
         </div>
-        <div className="charts">
-          <MyChartJS
-            chartData={chartData}  
-          />
+        <div className="container">
+          <div className="formData">
+              <Buttons 
+                data={excelData} 
+                handleOptions={handleOptions} />
+          </div>
+          <div className="charts">
+            <MyChartJS
+              chartData={chartData}  
+            />
+          </div>
         </div>
-      </div>
     </div>
   );
 }
