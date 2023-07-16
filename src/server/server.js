@@ -170,7 +170,7 @@ app.post('/api/transfer', async (req, res) => {
     let valueForEachYear = [];
 
     console.time("The whole transference of data to database");
-    for (const row of data.slice(0, 4)) {
+    for (const row of data.slice(0, 3)) {
       const model = row[0];
       const scenario = row[1];
       const region = row[2];
