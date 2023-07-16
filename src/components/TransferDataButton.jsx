@@ -5,6 +5,7 @@ const TransferDataButton = () => {
   const handleTransference = async () => {
     try {
       await axios.post('http://localhost:8080/api/transfer')
+      
       console.log('Transfering data request sent successfully')   //this message print out after the request completes
       
     } catch (error) {

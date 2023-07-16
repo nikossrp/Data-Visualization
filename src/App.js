@@ -23,7 +23,7 @@ function App() {
         axios.get('http://localhost:8080/api/results')
           .then(response => {
             const status = response.data.status;
-            console.log(response.data.data.length, status);
+            console.log(response.data, status);
             setStatus(status)
             if (status === 'completed_transference') {
               // Perform actions when complete status is received
@@ -98,6 +98,7 @@ function App() {
       // clear the dataset based on the selected options that the user made
     for (let curr_record = 1; curr_record < jsonData.length; curr_record++) {
       record = jsonData[curr_record];
+
       isMatchRegion = record.some(el => selected_regions.includes(el));  // if the user dones't select region we dont plot the diagram
       
       
