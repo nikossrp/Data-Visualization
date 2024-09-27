@@ -1,0 +1,30 @@
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: postgres.dockerfile
+    image: "postgres-paris"
+    container_name: ${PG_CONTAINER_NAME}
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: ${PGDATA}
+    volumes:
+      - dbIamParis:/data/postgres-IamParis
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    restart: unless-stopped
+volumes:  # we will use an external volume (run >> docker volume create dbtuto)
+    dbIamParis:
+      external: true
+
+
+# CREATE VOLUME
+# >> docker volume create dbIamParis
+
+# CREATE DOCKER container, images e.t.c
+# >> docker-compose up -d
+
+# CONNECT TO DATABASE (-h <host> -U <username> -p <port> -d <database_name>)
+# >> psql -h localhost -U IamParis -p 5432 -d IamParisDB

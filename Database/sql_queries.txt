@@ -1,0 +1,143 @@
+SELECT * FROM modeltable;
+
+SELECT * FROM scenariotable;
+
+SELECT * FROM regionTable;
+
+SELECT * From unittable;
+
+SELECT * FROM variableTable;
+
+SELECT * FROM resultstable;
+
+-- 1600 rows
+SELECT ModelTable.Name as Model, ScenarioTable.Name as Scenario, RegionTable.Name as Region, VariableTable.name as Variable, UnitTable.Name as Unit, ResultsTable.Year, ResultsTable.Value
+FROM ResultsTable
+INNER JOIN ModelTable on ResultsTable.Model_id = ModelTable.id
+INNER JOIN ScenarioTable on ResultsTable.Scenario_id = ScenarioTable.id
+INNER JOIN RegionTable ON ResultsTable.Region_id = RegionTable.id
+INNER JOIN VariableTable ON ResultsTable.Variable_id = VariableTable.id
+INNER JOIN UnitTable ON ResultsTable.Unit_id = UnitTable.id;
+
+DELETE FROM resultstable;
+
+DELETE  FROM ModelTable;
+
+
+DELETE  FROM scenariotable;
+
+DELETE  FROM regiontable;
+
+DELETE  FROM unittable;
+
+
+DELETE  FROM variableTable;
+
+
+SELECT * FROM pg_extension WHERE extname = 'tablefunc';
+CREATE EXTENSION IF NOT EXISTS tablefunc;
+
+SELECT DISTINCT Year
+FROM resultstable
+ORDER BY Year;
+
+SELECT *
+FROM crosstab(
+    $$SELECT ModelTable.Name AS Model, ScenarioTable.Name AS Scenario, RegionTable.Name AS Region, VariableTable.name AS Variable, UnitTable.Name AS Unit, ResultsTable.Year, ResultsTable.Value
+      FROM ResultsTable
+      INNER JOIN ModelTable ON ResultsTable.Model_id = ModelTable.id
+      INNER JOIN ScenarioTable ON ResultsTable.Scenario_id = ScenarioTable.id
+      INNER JOIN RegionTable ON ResultsTable.Region_id = RegionTable.id
+      INNER JOIN VariableTable ON ResultsTable.Variable_id = VariableTable.id
+      INNER JOIN UnitTable ON ResultsTable.Unit_id = UnitTable.id
+    ORDER BY 1, 2, 3, 4, 5$$,
+    $$SELECT DISTINCT Year
+    FROM ResultsTable
+    ORDER BY 1$$
+) AS ct (
+    Model text,
+    Scenario text,
+    Region text,
+    Variable text,
+    Unit text,
+    "2005" float,
+    "2010" float,
+    "2015" float,
+    "2020" float,
+    "2025" float,
+    "2030" float,
+    "2035" float,
+    "2040" float,
+    "2045" float,
+    "2050" float,
+    "2055" float,
+    "2060" float,
+    "2065" float,
+    "2070" float,
+    "2075" float,
+    "2080" float,
+    "2085" float,
+    "2090" float,
+    "2095" float,
+    "2100" float
+);
+
+SELECT *
+FROM crosstab(
+    'SELECT Model, Scenario, Region, Variable, Unit, Year, Value
+     FROM (
+         SELECT
+             ModelTable.Name AS Model,
+             ScenarioTable.Name AS Scenario,
+             RegionTable.Name AS Region,
+             VariableTable.Name AS Variable,
+             UnitTable.Name AS Unit,
+             ResultsTable.Year,
+             ResultsTable.Value
+         FROM ResultsTable
+         INNER JOIN ModelTable ON ResultsTable.Model_id = ModelTable.id
+         INNER JOIN ScenarioTable ON ResultsTable.Scenario_id = ScenarioTable.id
+         INNER JOIN RegionTable ON ResultsTable.Region_id = RegionTable.id
+         INNER JOIN VariableTable ON ResultsTable.Variable_id = VariableTable.id
+         INNER JOIN UnitTable ON ResultsTable.Unit_id = UnitTable.id
+     ) AS data
+     ORDER BY 1, 2, 3, 4',
+    'SELECT DISTINCT Year
+     FROM ResultsTable
+     ORDER BY 1'
+) AS ct (
+    Model text,
+    Scenario text,
+    Region text,
+    Variable text,
+    Unit text,
+    "2005" float,
+    "2010" float,
+    "2015" float,
+    "2020" float,
+    "2025" float,
+    "2030" float,
+    "2035" float,
+    "2040" float,
+    "2045" float,
+    "2050" float,
+    "2055" float,
+    "2060" float,
+    "2065" float,
+    "2070" float,
+    "2075" float,
+    "2080" float,
+    "2085" float,
+    "2090" float,
+    "2095" float,
+    "2100" float
+);
+
+
+SELECT DISTINCT ModelTable.Name AS Model, ScenarioTable.Name AS Scenario, RegionTable.Name AS Region, VariableTable.name AS Variable, UnitTable.Name AS Unit
+FROM ResultsTable
+INNER JOIN ModelTable ON ResultsTable.Model_id = ModelTable.id
+INNER JOIN ScenarioTable ON ResultsTable.Scenario_id = ScenarioTable.id
+INNER JOIN RegionTable ON ResultsTable.Region_id = RegionTable.id
+INNER JOIN VariableTable ON ResultsTable.Variable_id = VariableTable.id
+INNER JOIN UnitTable ON ResultsTable.Unit_id = UnitTable.id;
